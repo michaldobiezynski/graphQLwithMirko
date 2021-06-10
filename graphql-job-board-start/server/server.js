@@ -27,7 +27,9 @@ const apolloServer = new ApolloServer({
   typeDefs,
   resolvers,
   context: ({ req }) => {
-    user: req.user;
+    return {
+      user: req.user,
+    };
   },
 });
 apolloServer.applyMiddleware({ app, path: "/graphql" });
