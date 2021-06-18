@@ -1,37 +1,29 @@
-import { ApolloClient, HttpLink, InMemoryCache } from "apollo-boost";
+import {
+  ApolloClient,
+  ApolloLink,
+  HttpLink,
+  InMemoryCache,
+} from "apollo-boost";
 import gql from "graphql-tag";
 import { getAccessToken, isLoggedIn } from "./auth";
 
 const endpointUrl = "http://localhost:9000/graphql";
 
-const client = new ApolloClient({
-  link: new HttpLink({ uri: endpointUrl }),
-  cache: new InMemoryCache(),
+const authLink = new ApolloLink((operation, forward) => {
+  if (isLoggedIn()) {
+    operation.setContext({
+      headers: {
+        authorization: "Bearer " + getAccessToken(),
+      },
+    });
+  }
+  return forward(operation);
 });
 
-export async function graphqlRequest(query, variables = {}) {
-  const request = {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({
-      query,
-      variables,
-    }),
-  };
-
-  if (isLoggedIn()) {
-    request.headers["authorization"] = "Bearer " + getAccessToken();
-  }
-  const response = await fetch(endpointUrl, request);
-  const responseBody = await response.json();
-  if (responseBody.errors) {
-    const message = responseBody.errors
-      .map((error) => error.message)
-      .join("\n");
-    throw new Error(message);
-  }
-  return responseBody.data;
-}
+const client = new ApolloClient({
+  link: ApolloLink.from([authLink, new HttpLink({ uri: endpointUrl })]),
+  cache: new InMemoryCache(),
+});
 
 export async function loadJob(id) {
   const query = gql`
