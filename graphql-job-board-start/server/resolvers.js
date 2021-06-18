@@ -17,11 +17,11 @@ const Company = {
 const Mutation = {
   createJob: (root, { input }, context) => {
     // check user auth
-    console.log("context", context);
+
     if (!context.user) {
       throw new Error("Unauthorised");
     }
-    const id = db.jobs.create(input);
+    const id = db.jobs.create({ ...input, companyId: context.user.companyId });
     return db.jobs.get(id);
   },
 };

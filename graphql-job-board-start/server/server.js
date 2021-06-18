@@ -28,7 +28,7 @@ const apolloServer = new ApolloServer({
   resolvers,
   context: ({ req }) => {
     return {
-      user: req.user,
+      user: req.user && db.users.get(req.user.sub),
     };
   },
 });
