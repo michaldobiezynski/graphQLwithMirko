@@ -48,7 +48,7 @@ export async function loadJob(id) {
 
 export async function loadJobs() {
   const query = gql`
-    {
+    query {
       jobs {
         id
         title

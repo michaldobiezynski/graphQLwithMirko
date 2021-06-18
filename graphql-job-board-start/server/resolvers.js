@@ -10,8 +10,9 @@ const Job = {
   company: (job) => db.companies.get(job.companyId),
 };
 const Company = {
-  jobs: (company) =>
-    db.jobs.list().filter((job) => job.companyId === company.id),
+  jobs: (company) => {
+    return db.jobs.list().filter((job) => job.companyId === company.id);
+  },
 };
 
 const Mutation = {
